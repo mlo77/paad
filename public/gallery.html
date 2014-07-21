@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  	<script src='/javascripts/jquery-2.1.1.min.js'></script>
+  	<style>
+  	img {
+  		width: 50px;
+  	}
+
+  	</style>
+  </head>
+  <body>
+  	<script>
+  	$(document).ready(function () {
+
+  		function addImg(imurl) {
+  			var im = document.createElement('img');
+  			im.id = imurl;
+  			im.src = 'images/'+ imurl;
+  			im.onclick = function() {parent.galleryClicked(this.id)};
+  			document.getElementsByTagName('body')[0].appendChild(im);
+  		}
+
+		function getImgList() {
+		  $.ajax({
+		    url: '/listimgs',
+		    type: 'GET',
+		    success: function (data) {
+		      console.log(data);
+		      for (var i=0; i<data.length; i++) {
+		      	addImg(data[i]);
+		      }
+		    }
+		  });
+		}
+
+  		getImgList();
+  	});
+  	</script>
+  </body>
+</html>

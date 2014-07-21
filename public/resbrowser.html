@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  	<script src='/javascripts/jquery-2.1.1.min.js'></script>
+  	<style>
+  	img {
+  		width: 40px;
+  	}
+
+  	</style>
+  </head>
+  <body>
+  	<script>
+  	$(document).ready(function () {
+
+      var QueryString = function () {
+        // This function is anonymous, is executed immediately and 
+        // the return value is assigned to QueryString!
+        var query_string = {};
+        var query = window.location.search.substring(1);
+        var vars = query.split("&");
+        for (var i=0;i<vars.length;i++) {
+          var pair = vars[i].split("=");
+            // If first entry with this name
+          if (typeof query_string[pair[0]] === "undefined") {
+            query_string[pair[0]] = pair[1];
+            // If second entry with this name
+          } else if (typeof query_string[pair[0]] === "string") {
+            var arr = [ query_string[pair[0]], pair[1] ];
+            query_string[pair[0]] = arr;
+            // If third or later entry with this name
+          } else {
+            query_string[pair[0]].push(pair[1]);
+          }
+        } 
+          return query_string;
+      } ();
+
+  		function addImg(imurl) {
+  			var im = document.createElement('img');
+  			im.id = imurl;
+  			im.src = 'res/icons/'+ imurl;
+  			im.onclick = function() {
+          if (this.selected) {
+            this.style.border = '';
+            delete this.selected;
+          }
+          else {
+            //parent.galleryClicked(this.id);
+            this.style.border = "3px solid orange";
+            this.selected = true;
+          }
+        };
+  			document.getElementsByTagName('body')[0].appendChild(im);
+  		}
+
+    function displayList() {
+      
+    }
+
+		function getList() {
+		  $.ajax({
+		    url: '/listres',
+		    type: 'GET',
+		    success: function (data) {
+		      console.log(data);
+		      for (var i=0; i<data.length; i++) {
+		      	addImg(data[i]);
+		      }
+		    }
+		  });
+		}
+
+  		getList();
+  	});
+  	</script>
+  </body>
+</html>

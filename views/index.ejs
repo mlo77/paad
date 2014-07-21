@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Petite Armoire admin</title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+<!--     <link rel='stylesheet' href='/javascripts/themes/default/style.css' /> -->
+    <script src='/javascripts/jquery-2.1.1.min.js'></script>
+    <script src="/javascripts/waypoints.min.js"></script>
+    <script src="/javascripts/waypoints-sticky.min.js"></script>
+    <script src="/javascripts/d3.min.js" charset="utf-8"></script>
+    <!--<script src="/javascripts/jstree.min.js" charset="utf-8"></script>-->
+
+  </head>
+  <body>
+    <h1>Product</h1>
+<div class='row'>
+  <div id='listprod' class='col-md-3'></div>
+  <div id='container' class='col-md-6'>
+    <div id='imgprev' class='preview col-md-3'></div>
+  </div>
+  <div id='editor'> 
+    <div class=address>
+      address: <input type="text" id="address" value="http://192.168.1.4:8080/">
+    </div><br>
+    <form>
+      title: <input type="text" id="title"><br>
+      <div id=imghover>
+      img: <input type="text" id="img"><input type="button" value="+" onclick=addimg()></div>
+      <div id='gallery'><iframe src='gallery.html'></iframe></div>
+  
+      <br>
+      description: <input type="text" id="desc" size=50><br>
+      price: <input type="text" id="price"><br>
+      cat: <input list="cat" id="browser">
+      <datalist id="cat">
+        <option value="top">
+        <option value="outer">
+        <option value="bottom">
+      </datalist>
+      <br>
+      <input type="radio" id="gdr" value="male">Male<br>
+      <input type="radio" id="gdr" value="female">Female<br>
+      promo: <input type="text" id="promo"><br>
+      exppromo: <input type="text" id="expp"><br>
+      qty: <input type="text" id="qty"><br>
+      size: <input type="text" id="size"><br>
+      color: <input type="text" id="color"><br>
+       <div id='gallerylaundry'><iframe src='laundryicons.html'></iframe></div>
+      <input type="button" value="OK" onclick=addprod()><input type="button" value="reset" onclick=reset()><input type="button" value="SEND" onclick=send()>
+      <br><br><input type="button" value="DELETE" onclick=deleteprod()>
+    </form>
+  </div>
+</div>
+	<script>
+  toto = 1;
+$(document).ready(function () {
+
+var products = [];
+var container = document.getElementById('container');
+var prevcontainer = document.getElementById('imgprev');
+var currentSelection = undefined;
+
+
+function makelistimgs () {
+  var list = $('#imgprev').children();
+  var res = [];
+  for (var i=0; i<list.length; i++)
+    res.push(list[i].getAttribute('url'));
+  return res;
+}
+
+addimg = function() {
+  var url = document.getElementById('img').value;
+  showimg(url);
+}
+
+function showimg(url) {
+
+  function createimg() {
+    var el = document.createElement('img');
+    el.className = 'previewimg';
+    el.onclick = function () {
+      this.src = document.getElementById('address').value+"images/"+url+
+        "?"+ new Date().getTime();
+    }
+    el.src = document.getElementById('address').value+"images/"+url+
+      "?"+ new Date().getTime();
+    return el;
+  }
+
+  var el = document.createElement('div');
+  el.setAttribute('url', url);
+  el.appendChild(createimg());
+  var el2 = document.createElement('div');
+  el2.className='previmgremove';
+  el2.onclick = function() {
+    $(el).remove();
+  }
+  el.appendChild(el2);
+  prevcontainer.appendChild(el);
+}
+
+addprod = function () {
+  function fetch(ob, tag) {
+    if (document.getElementById(tag).value != undefined)
+      ob[tag] = document.getElementById(tag).value;
+  }
+	var p = {};
+  // fetch(p,'id');
+  fetch(p,'desc');
+  fetch(p,'title');
+  fetch(p,'promo');
+  fetch(p,'expp');
+  fetch(p,'qty');
+  fetch(p,'size');
+  fetch(p,'color');
+  fetch(p,'wash');
+  fetch(p,'dry');
+  fetch(p,'iron');
+  fetch(p,'bleach');
+  fetch(p,'comp');
+  fetch(p,'price');
+  fetch(p,'gdr');
+  fetch(p,'cat');
+  p.imgs = makelistimgs();
+  products.push(p);
+  reset();defaultFill();
+}
+
+function reset() {
+  function clr(tag) {
+    document.getElementById(tag).value = "";
+  }
+  // clr('id');
+  clr('desc');
+  clr('title');
+  clr('promo');
+  clr('expp');
+  clr('qty');
+  clr('size');
+  clr('color');
+  clr('wash');
+  clr('dry');
+  clr('iron');
+  clr('bleach');
+  clr('comp');
+  clr('price');
+  clr('gdr');
+  clr('cat');
+  $(prevcontainer).empty();
+}
+
+send = function () {
+  console.log(JSON.stringify(products));
+  $.ajax({
+    url: '/update',
+    type: 'POST',
+    contentType: 'application/json',
+    success: function (data) {
+        console.log(data);
+        window.location.reload();
+    },
+    data: JSON.stringify(products)
+  });
+}
+
+defaultFill  = function () {
+  function fill(tag, d) {
+    document.getElementById(tag).value = d;
+  }
+
+  fill('promo',0);
+  fill('qty',1);
+  fill('img','1.jpg');
+  document.getElementById('cat').value = 'top';
+}
+
+function fill(tag, d) {
+  document.getElementById(tag).value = d;
+}
+
+function loadItem(d) {
+  reset();
+  fill('desc',d.desc);
+  fill('title',d.title);
+  fill('promo',d.promo);
+  fill('expp',d.expp);
+  fill('qty',d.qty);
+  fill('size',d.size);
+  fill('color',d.color);
+  fill('wash',d.wash);
+  fill('dry',d.dry);
+  fill('iron',d.iron);
+  fill('bleach',d.bleach);
+  fill('comp',d.comp);
+  fill('price',d.price);
+  fill('gdr',d.gdr);
+  if (d.imgs) {
+    for (var i=0;i<d.imgs.length;i++) {
+      showimg(d.imgs[i]);
+    }
+  }
+  document.getElementById('cat').value = d.cat;
+}
+
+function showList(data) {
+  d3.select('#listprod')
+    .append('div')
+      .attr('class', 'listproducts')
+      .selectAll('div')
+      .data(data)
+      .enter().append('div')
+        .each(
+            function(d,i){
+              this.onclick=function(){
+                loadItem(d);
+                if (currentSelection)
+                  currentSelection.className = '';
+                this.className = 'selected';
+                currentSelection = this;
+        };})
+        .text(function(d){return d.title;})
+}
+
+function getList() {
+  $.ajax({
+    url: '/listproducts',
+    type: 'GET',
+    success: function (data) {
+      //console.log(data);
+      showList(data);
+    }
+  });
+}
+
+deleteprod = function() {
+  $.ajax({
+    url: '/update',
+    type: 'DELETE',
+    contentType: 'application/json',
+    success: function (data) {
+        console.log(data);
+    },
+    data: JSON.stringify({title:currentSelection.innerText})
+  });
+}
+
+galleryClicked = function(imurl) {
+  console.log(imurl);
+  document.getElementById('img').value = imurl;
+}
+
+defaultFill();
+$('#editor').waypoint('sticky');
+getList();
+// $('#imghover').hover(
+//   function() {
+//     console.log('in');
+//     document.getElementById('gallery').style.opacity = 1;
+//   },
+//   function() {
+//     console.log('out');
+//     document.getElementById('gallery').style.opacity = 0;
+//   }
+// );
+
+var galleryShow = 0.8;
+$('#imghover').click(
+  function() {
+    console.log('in');
+    document.getElementById('gallery').style.opacity = galleryShow;
+    galleryShow = (galleryShow==0.8)?0:0.8;
+  }
+);
+
+});
+  </script>
+  </body>
+</html>
