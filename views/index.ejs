@@ -114,11 +114,6 @@ addprod = function () {
   fetch(p,'qty');
   fetch(p,'size');
   fetch(p,'color');
-  fetch(p,'wash');
-  fetch(p,'dry');
-  fetch(p,'iron');
-  fetch(p,'bleach');
-  fetch(p,'comp');
   fetch(p,'price');
   fetch(p,'gdr');
   fetch(p,'cat');
@@ -139,11 +134,6 @@ function reset() {
   clr('qty');
   clr('size');
   clr('color');
-  clr('wash');
-  clr('dry');
-  clr('iron');
-  clr('bleach');
-  clr('comp');
   clr('price');
   clr('gdr');
   clr('cat');
@@ -188,11 +178,6 @@ function loadItem(d) {
   fill('qty',d.qty);
   fill('size',d.size);
   fill('color',d.color);
-  fill('wash',d.wash);
-  fill('dry',d.dry);
-  fill('iron',d.iron);
-  fill('bleach',d.bleach);
-  fill('comp',d.comp);
   fill('price',d.price);
   fill('gdr',d.gdr);
   if (d.imgs) {
@@ -255,8 +240,8 @@ iframeSelection = function(url, who) {
   console.log(who);
 }
 
-defaultFill();
-$('#editor').waypoint('sticky');
+//defaultFill();
+//$('#editor').waypoint('sticky');
 getList();
 // $('#imghover').hover(
 //   function() {
