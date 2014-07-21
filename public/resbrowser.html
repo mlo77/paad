@@ -5,7 +5,11 @@
   	<style>
   	img {
   		width: 40px;
+      margin; 1px;
   	}
+    div {
+      margin: 1px;
+    }
 
   	</style>
   </head>
@@ -36,17 +40,21 @@
           return query_string;
       } ();
 
+      if (QueryString.path == undefined)
+        QueryString.path = '';
+
   		function addImg(imurl) {
   			var im = document.createElement('img');
   			im.id = imurl;
-  			im.src = 'res/icons/'+ imurl;
+  			im.src = 'images/'+ QueryString.path +'/'+ imurl;
   			im.onclick = function() {
           if (this.selected) {
             this.style.border = '';
             delete this.selected;
+            parent.iframeSelection(this.id, QueryString.purpose, false);
           }
           else {
-            //parent.galleryClicked(this.id);
+            parent.iframeSelection(this.id, QueryString.purpose, true);
             this.style.border = "3px solid orange";
             this.selected = true;
           }
@@ -54,25 +62,50 @@
   			document.getElementsByTagName('body')[0].appendChild(im);
   		}
 
-    function displayList(list) {
-      for (var i=0; i<list.length; i++) {
-        if ()
-        addImg(data[i]);
+      function addFolder(folder, color, path) {
+        var t = document.createElement('div');
+        t.id = folder;
+        t.style.backgroundColor = color;
+        t.style.float = 'left';
+        t.style.margin = '1px';
+        t.innerText = folder;
+        t.onclick = function() {
+          if (folder != '..')
+            self.location="resbrowser.html?path="+path+folder+'&purpose='+QueryString.purpose;
+          else
+            self.location="resbrowser.html?path="+path+'&purpose='+QueryString.purpose;
+        }
+        document.getElementsByTagName('body')[0].appendChild(t);
       }
-    }
 
-		function getList() {
-		  $.ajax({
-		    url: '/listres',
-		    type: 'GET',
-		    success: function (data) {
-		      console.log(data);
-		      for (var i=0; i<data.length; i++) {
-		      	addImg(data[i]);
-		      }
-		    }
-		  });
-		}
+      function parentFolder() {
+        var t = QueryString.path.split('/');
+        var res = "";
+        for (var i=0; i<t.length-1 && t.length>0; i++) {
+          res+=t[i]+'/';
+        }
+        return res;
+      }
+
+      function displayList(list) {
+        for (var i=0; i<list.length; i++) {
+          if (list[i].substring(0,4) == "__d_")
+            addFolder(list[i], 'khaki', QueryString.path);
+          else addImg(list[i]);
+        }
+        addFolder('..', 'gold', parentFolder());
+      }
+
+  		function getList() {
+  		  $.ajax({
+  		    url: '/listres'+location.search,
+  		    type: 'GET',
+  		    success: function (data) {
+  		      console.log(data);
+  		      displayList(data);
+  		    }
+  		  });
+  		}
 
   		getList();
   	});

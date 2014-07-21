@@ -26,7 +26,7 @@
       title: <input type="text" id="title"><br>
       <div id=imghover>
       img: <input type="text" id="img"><input type="button" value="+" onclick=addimg()></div>
-      <div id='gallery'><iframe src='gallery.html'></iframe></div>
+      <div id='gallery'><iframe src='resbrowser.html?purpose=img'></iframe></div>
   
       <br>
       description: <input type="text" id="desc" size=50><br>
@@ -45,7 +45,7 @@
       qty: <input type="text" id="qty"><br>
       size: <input type="text" id="size"><br>
       color: <input type="text" id="color"><br>
-       <div id='gallerylaundry'><iframe src='laundryicons.html'></iframe></div>
+       <div id='gallerylaundry'><iframe src='resbrowser.html?path=__d_icons&purpose=icons'></iframe></div>
       <input type="button" value="OK" onclick=addprod()><input type="button" value="reset" onclick=reset()><input type="button" value="SEND" onclick=send()>
       <br><br><input type="button" value="DELETE" onclick=deleteprod()>
     </form>
@@ -248,6 +248,11 @@ deleteprod = function() {
 galleryClicked = function(imurl) {
   console.log(imurl);
   document.getElementById('img').value = imurl;
+}
+
+iframeSelection = function(url, who) {
+  console.log(url);
+  console.log(who);
 }
 
 defaultFill();

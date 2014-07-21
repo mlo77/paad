@@ -5,11 +5,11 @@ var router = express.Router();
 /* GET home page. */
 router.get('/', function(req, res) {
   //console.log(JSON.stringify(req.session));
-  if (req.session.user == 'mogimogi') {
+  //if (req.session.user == 'mogimogi') {
     res.render('index', { title: 'Admin' });
-  } else {
-    res.render('login', { title: 'login' });
-  }
+  //} else {
+  //  res.render('login', { title: 'login' });
+  //}
 });
 
 router.post('/login', function(req, res) {
@@ -42,7 +42,10 @@ router.get('/listimgs', function(req, res) {
 
 /* GET list page. */
 router.get('/listres', function(req, res) {
-  fs.readdir('./public/res/icons', function(err, list) {
+  var path = '';
+  if (req.query.path)
+    path = req.query.path;
+  fs.readdir('./public/images/'+path, function(err, list) {
     console.log(err);
     //console.log(list);
     res.json(list);
