@@ -24,8 +24,7 @@
     </div><br>
     <form>
       title: <input type="text" id="title"><br>
-      <div id=imghover>
-      img: <input type="text" id="img"><input type="button" value="+" onclick=addimg()></div>
+      img:
       <div id='gallery'><iframe src='resbrowser.html?purpose=img'></iframe></div>
   
       <br>
@@ -59,7 +58,7 @@ var products = [];
 var container = document.getElementById('container');
 var prevcontainer = document.getElementById('imgprev');
 var currentSelection = undefined;
-
+var icons = {};
 
 function makelistimgs () {
   var list = $('#imgprev').children();
@@ -79,11 +78,8 @@ function showimg(url) {
   function createimg() {
     var el = document.createElement('img');
     el.className = 'previewimg';
-    el.onclick = function () {
-      this.src = document.getElementById('address').value+"images/"+url+
-        "?"+ new Date().getTime();
-    }
-    el.src = document.getElementById('address').value+"images/"+url+
+    //el.src = document.getElementById('address').value+"images/"+url+
+    el.src = url+
       "?"+ new Date().getTime();
     return el;
   }
@@ -118,6 +114,7 @@ addprod = function () {
   fetch(p,'gdr');
   fetch(p,'cat');
   p.imgs = makelistimgs();
+  p.icons
   products.push(p);
   reset();defaultFill();
 }
@@ -236,8 +233,14 @@ galleryClicked = function(imurl) {
 }
 
 iframeSelection = function(url, who) {
-  console.log(url);
-  console.log(who);
+  if (who == 'img') {
+    showimg(url);
+  }
+  else if (who == 'icons') {
+
+  }
+  //console.log(url);
+  //console.log(who);
 }
 
 //defaultFill();

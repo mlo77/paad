@@ -43,21 +43,25 @@
       if (QueryString.path == undefined)
         QueryString.path = '';
 
+      function toggleSelection(el) {
+        if (el.selected) {
+            el.style.border = '';
+            delete el.selected;
+            parent.iframeSelection(el.src, QueryString.purpose, false);
+          }
+          else {
+            parent.iframeSelection(el.src, QueryString.purpose, true);
+            el.style.border = "3px solid orange";
+            el.selected = true;
+          }
+      }
+
   		function addImg(imurl) {
   			var im = document.createElement('img');
   			im.id = imurl;
   			im.src = 'images/'+ QueryString.path +'/'+ imurl;
   			im.onclick = function() {
-          if (this.selected) {
-            this.style.border = '';
-            delete this.selected;
-            parent.iframeSelection(this.id, QueryString.purpose, false);
-          }
-          else {
-            parent.iframeSelection(this.id, QueryString.purpose, true);
-            this.style.border = "3px solid orange";
-            this.selected = true;
-          }
+          toggleSelection(this);
         };
   			document.getElementsByTagName('body')[0].appendChild(im);
   		}
