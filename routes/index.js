@@ -6,7 +6,7 @@ var router = express.Router();
 router.get('/', function(req, res) {
   //console.log(JSON.stringify(req.session));
   //if (req.session.user == 'mogimogi') {
-    res.render('index', { title: 'Admin' });
+    res.render('index.html');
   //} else {
   //  res.render('login', { title: 'login' });
   //}

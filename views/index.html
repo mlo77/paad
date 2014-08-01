@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Petite Armoire admin</title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+    <script src='/javascripts/jquery-2.1.1.min.js'></script>
+    <script src="/javascripts/waypoints.min.js"></script>
+    <script src="/javascripts/waypoints-sticky.min.js"></script>
+    <script src="/javascripts/d3.min.js" charset="utf-8"></script>
+    <script src="/javascripts/Product.js" charset="utf-8"></script>
+  </head>
+  <body>
+    <h1>Product</h1>
+<div class='row'>
+  <div id='listprod' class='col-md-2'></div>
+  <div id='container' class='col-md-6'>
+    <div id='imgprev' class='preview col-md-3'></div>
+  </div>
+  <div id='editor'> 
+    
+      title: <input type="text" id="title"><br>
+      description: <input type="text" id="desc" size=50><br>
+      price: <input type="text" id="price"><br>
+      cat: <input list="cat" id="cat">
+      <datalist>
+        <option value="top">
+        <option value="outer">
+        <option value="bottom">
+      </datalist>
+      <br>
+      <input type="radio" id="gdrb" name='grd' value="boy">Boy<tr>
+      <input type="radio" id="gdrg" name='grd' value="girl">Girl<tr>
+      <input type="radio" id="gdra" name='grd' value="any">Any<br>
+      <div id='gallerylaundry'><iframe src='resbrowser.html?path=__d_icons&purpose=icons'></iframe></div>
+      <div id='variant'></div>
+    </form>
+  </div>
+</div>
+<div class='row'>
+      <input type="button" value="ADD variant" onclick=addVariant()>
+      <input type="button" value="ADD" onclick=addprod()><input type="button" value="CLEAR" onclick=reset()><input type="button" value="COMMIT" onclick=commit()>
+      <br><br><input type="button" value="DELETE" onclick=deleteprod()>
+
+</div>
+
+	<script>
+  toto = 1;
+$(document).ready(function () {
+
+var products = [];
+var container = document.getElementById('container');
+var prevcontainer = document.getElementById('imgprev');
+var currentSelection = undefined;
+var currentProduct = {variants:[], icons:{}};
+var colorscale = d3.scale.linear().range(["#cff", "#777"]);
+
+
+function makehash(list) {
+  var res = {};
+  for (var i=0; i<list.length; i++)
+    res[list[i]] = true;
+  return res;
+}
+
+function makelist(obj) {
+  var res = [];
+  for (var k in obj)
+    res.push(k);
+  return res;
+}
+
+function showimg(url, variant) {
+  if (variant.imgs[url] != undefined) {
+    $(variant.imgs[url]).remove();
+    delete variant.imgs[url];
+    return;
+  }
+  function createimg() {
+    var el = document.createElement('img');
+    el.className = 'previewimg';
+    el.src = '/images/'+url+"?"+ new Date().getTime();
+    return el;
+  }
+
+  var el = document.createElement('div');
+  el.setAttribute('url', url);
+  el.appendChild(createimg());
+  var el2 = document.createElement('div');
+  el2.className='previmgremove';
+  el2.onclick = function() {
+    $(el).remove();
+  }
+  el.appendChild(el2);
+  prevcontainer.appendChild(el);
+  variant.imgs[url] = el;
+}
+
+addprod = function () {
+  function fetch(ob, tag) {
+    if (document.getElementById(tag).value != undefined)
+      ob[tag] = document.getElementById(tag).value;
+  }
+	var p = {};
+  fetch(p,'desc');
+  fetch(p,'title');
+  fetch(p,'price');
+  p.gdr = getGdr();
+  fetch(p,'cat');
+  p.icons = makelist(currentProduct.icons);
+  p.variants = cloneVariants(currentProduct.variants);
+  console.log(p);
+  products.push(p);
+  reset();
+}
+
+function cloneVariants(vrts) {
+  console.log(vrts)
+  var res = [];
+  for (var i=0; i<vrts.length; i++) {
+    res.push({
+      color: vrts[i].color,
+      qty: vrts[i].qty,
+      size: vrts[i].size,
+      imgs: makelist(vrts[i].imgs)
+    });
+  }
+  return res;
+}
+
+function reset() {
+  function clr(tag) {
+    document.getElementById(tag).value = "";
+  }
+  clr('desc');
+  clr('title');
+  clr('price');
+  clearGdr();
+  //clr('cat');
+  $(prevcontainer).empty();
+  currentProduct = {variants:[], icons:{}};
+  $('#variant').empty();
+}
+
+commit = function () {
+  console.log(JSON.stringify(products));
+  $.ajax({
+    url: '/update',
+    type: 'POST',
+    contentType: 'application/json',
+    success: function (data) {
+        console.log(data);
+        window.location.reload();
+    },
+    data: JSON.stringify(products)
+  });
+}
+
+function fill(tag, d) {
+  document.getElementById(tag).value = d;
+}
+
+function clearGdr() {
+  document.getElementById('gdrb').checked = false;
+  document.getElementById('gdrg').checked = false;
+  document.getElementById('gdra').checked = false;
+}
+
+function getGdr() {
+  if (document.getElementById('gdrb').checked)
+    return 'boy';
+  else if (document.getElementById('gdrg').checked)
+    return 'girl';
+  else if (document.getElementById('gdra').checked)
+    return 'any';
+}
+
+function setGdr(gdr) {
+  if (gdr == 'boy') {
+    document.getElementById('gdrb').checked = true;
+  }
+  else if (gdr == 'girl') {
+    document.getElementById('gdrg').checked = true;
+  }
+  else if (gdr == 'any') {
+    document.getElementById('gdra').checked = true;
+  }
+}
+
+loadItem = function(d) {
+  reset();
+
+  fill('desc',d.desc);
+  fill('title',d.title);
+  fill('price',d.price);
+  setGdr(d.gdr);
+  fill('cat',d.cat);
+  currentProduct.icons = makehash(d.icons);
+  updateIconsSelection(d.icons, true);
+
+  for (var i=0; i<d.variants.length; i++) {
+    addVariant(i);
+    loadVariant(d.variants[i], i);
+  }
+  function loadVariant(dv, variant) {
+    if (dv.imgs) {
+      for (var i=0;i<dv.imgs.length;i++) {
+        showimg(dv.imgs[i], currentProduct.variants[variant]);
+      }
+    }
+    fill('qty'+variant,dv.qty);
+    fill('size'+variant,dv.size);
+    fill('color'+variant,dv.color);
+  }
+}
+
+function showList(data) {
+  d3.select('#listprod')
+    .append('div')
+      .attr('class', 'listproducts')
+      .selectAll('div')
+      .data(data)
+      .enter().append('div')
+        .each(
+            function(d,i){
+              this.onclick=function(){
+                loadItem(d);
+                if (currentSelection)
+                  currentSelection.className = '';
+                this.className = 'selected';
+                currentSelection = this;
+        };})
+        .text(function(d){return d.title;})
+}
+
+function getList() {
+  $.ajax({
+    url: '/listproducts',
+    type: 'GET',
+    success: function (data) {
+      showList(data);
+    }
+  });
+}
+
+deleteprod = function() {
+  $.ajax({
+    url: '/update',
+    type: 'DELETE',
+    contentType: 'application/json',
+    success: function (data) {
+        console.log(data);
+    },
+    data: JSON.stringify({title:currentSelection.innerText})
+  });
+}
+
+galleryClicked = function(imurl) {
+  console.log(imurl);
+  document.getElementById('img').value = imurl;
+}
+
+iframeSelection = function(url, what, variant) {
+  function toggleicons(idx) {
+    if (currentProduct.icons[idx] != undefined)
+      delete currentProduct.icons.idx;
+    else
+      currentProduct.icons[idx] = true;
+  }
+
+  if (what == 'img') {
+    showimg(url, currentProduct.variants[variant]);
+  }
+  else if (what == 'icons') {
+    toggleicons(url);
+  }
+}
+
+function updateIconsSelection(list) {
+  $('#gallerylaundry').contents()[0].contentWindow.updateSelection(list, true);
+}
+
+addVariant = function(token) {
+  if (token == undefined) token = 0;
+
+  // if (currentProduct.variants[token] == undefined) {
+  //   currentProduct.variants[token] = {imgs:{}, qty:0, size:'', color:'', cont:undefined};
+  // }
+  currentProduct.variants.push( {imgs:{}, qty:0, size:'', color:'', cont:undefined});
+
+  var cont = $('<div></div>')
+    .appendTo('#variant')
+    .css('backgroundColor', colorscale(Math.random()));
+  $('<iframe></iframe>')
+    .attr('id', 'gallery'+token)
+    .attr('src', 'resbrowser.html?purpose=img&variant='+token)
+    .appendTo(cont);
+  function createInputField(label, token) {
+    $('<div></div>')
+      .text(label +': ')
+      .append($('<input>')
+        .attr('type', 'text')
+        .attr('id', label+token)
+        .append($('<br>'))
+      )
+      .appendTo(cont);
+  }
+  createInputField('qty', token);
+  createInputField('size', token);
+  createInputField('color', token);
+  //currentProduct.variants[token].cont = cont;
+  return cont;
+}
+
+getList();
+addVariant();
+
+});
+  </script>
+  </body>
+</html>

@@ -18,8 +18,8 @@ iframe {
 .preview {
 	position: absolute;
 	float: right;
-	width: 300px;
-	right: 20px;
+	width: 200px;
+	right: 10px;
   top: 70px;
 }
 

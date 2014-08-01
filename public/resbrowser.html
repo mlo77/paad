@@ -15,7 +15,26 @@
   </head>
   <body>
   	<script>
-  	$(document).ready(function () {
+      var elements = {};
+
+      function updateSelection(icons, selected) {
+        for (var i in icons) {
+          toggleSelection(elements[icons[i]], true);
+        }
+      }
+
+      function toggleSelection(el, forced) {
+        if (el.selected && !forced) {
+            el.style.border = '';
+            delete el.selected;
+          }
+          else {
+            el.style.border = "3px solid orange";
+            el.selected = true;
+          }
+          console.log(el.relsrc)
+          parent.iframeSelection(el.relsrc, QueryString.purpose, QueryString.variant);
+      }
 
       var QueryString = function () {
         // This function is anonymous, is executed immediately and 
@@ -43,26 +62,17 @@
       if (QueryString.path == undefined)
         QueryString.path = '';
 
-      function toggleSelection(el) {
-        if (el.selected) {
-            el.style.border = '';
-            delete el.selected;
-            parent.iframeSelection(el.src, QueryString.purpose, false);
-          }
-          else {
-            parent.iframeSelection(el.src, QueryString.purpose, true);
-            el.style.border = "3px solid orange";
-            el.selected = true;
-          }
-      }
+  	$(document).ready(function () {
 
   		function addImg(imurl) {
   			var im = document.createElement('img');
   			im.id = imurl;
-  			im.src = 'images/'+ QueryString.path +'/'+ imurl;
+  			im.src = '/images/'+ QueryString.path +'/'+ imurl;
+        im.relsrc = QueryString.path +'/'+ imurl;
   			im.onclick = function() {
           toggleSelection(this);
         };
+        elements[im.relsrc] = im;
   			document.getElementsByTagName('body')[0].appendChild(im);
   		}
 
@@ -93,7 +103,8 @@
 
       function displayList(list) {
         for (var i=0; i<list.length; i++) {
-          if (list[i].substring(0,4) == "__d_")
+          if (list[i] == '.gitignore') continue;
+          else if (list[i].substring(0,4) == "__d_")
             addFolder(list[i], 'khaki', QueryString.path);
           else addImg(list[i]);
         }
@@ -105,7 +116,7 @@
   		    url: '/listres'+location.search,
   		    type: 'GET',
   		    success: function (data) {
-  		      console.log(data);
+  		      //console.log(data);
   		      displayList(data);
   		    }
   		  });
