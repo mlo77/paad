@@ -8,43 +8,66 @@
     <script src="/javascripts/waypoints-sticky.min.js"></script>
     <script src="/javascripts/d3.min.js" charset="utf-8"></script>
     <script src="/javascripts/Product.js" charset="utf-8"></script>
+    <!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+
+<!-- Optional theme -->
+<!-- <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
+ -->
+<!-- Latest compiled and minified JavaScript -->
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
   </head>
   <body>
     <h1>Product</h1>
 <div class='row'>
   <div id='listprod' class='col-md-2'></div>
   <div id='container' class='col-md-6'>
-    <div id='imgprev' class='preview col-md-3'></div>
+    <div id='editor'> 
+      
+        title: <input type="text" id="title"><br>
+        description: <input type="text" id="desc" size=50><br>
+        price: <input type="text" id="price"><br>
+        cat: <input list="cat" id="cat">
+        <datalist>
+          <option value="top">
+          <option value="outer">
+          <option value="bottom">
+        </datalist>
+        <br>
+        <input type="radio" id="gdrb" name='grd' value="boy">Boy<tr>
+        <input type="radio" id="gdrg" name='grd' value="girl">Girl<tr>
+        <input type="radio" id="gdra" name='grd' value="any">Any<br>
+        <div id='gallerylaundry'><iframe src='resbrowser.html?path=__d_icons&purpose=icons'></iframe></div>
+        <div id='variant'></div>
+      </form>
+    </div>
   </div>
-  <div id='editor'> 
-    
-      title: <input type="text" id="title"><br>
-      description: <input type="text" id="desc" size=50><br>
-      price: <input type="text" id="price"><br>
-      cat: <input list="cat" id="cat">
-      <datalist>
-        <option value="top">
-        <option value="outer">
-        <option value="bottom">
-      </datalist>
-      <br>
-      <input type="radio" id="gdrb" name='grd' value="boy">Boy<tr>
-      <input type="radio" id="gdrg" name='grd' value="girl">Girl<tr>
-      <input type="radio" id="gdra" name='grd' value="any">Any<br>
-      <div id='gallerylaundry'><iframe src='resbrowser.html?path=__d_icons&purpose=icons'></iframe></div>
-      <div id='variant'></div>
-    </form>
-  </div>
+  <div id='imgprev' class='preview col-md-3'></div>
 </div>
 <div class='row'>
       <input type="button" value="ADD variant" onclick=addVariant()>
       <input type="button" value="ADD" onclick=addprod()><input type="button" value="CLEAR" onclick=reset()><input type="button" value="COMMIT" onclick=commit()>
       <br><br><input type="button" value="DELETE" onclick=deleteprod()>
+      <br><br><input type="button" value="gen" onclick=gen()>
 
 </div>
 
 	<script>
-  toto = 1;
+
+function gen() {
+  function loopasync(n) {
+    randomizer.makeProd(function(p) {
+      loadItem(p);
+      addprod();
+      if (n-- <= 0)
+        commit();
+      else
+        loopasync(n);
+    });
+  }
+  loopasync(10);
+}
+
 $(document).ready(function () {
 
 var products = [];
@@ -282,9 +305,6 @@ function updateIconsSelection(list) {
 addVariant = function(token) {
   if (token == undefined) token = 0;
 
-  // if (currentProduct.variants[token] == undefined) {
-  //   currentProduct.variants[token] = {imgs:{}, qty:0, size:'', color:'', cont:undefined};
-  // }
   currentProduct.variants.push( {imgs:{}, qty:0, size:'', color:'', cont:undefined});
 
   var cont = $('<div></div>')

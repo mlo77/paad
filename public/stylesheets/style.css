@@ -18,7 +18,7 @@ iframe {
 .preview {
 	position: absolute;
 	float: right;
-	width: 200px;
+	/*width: 200px;*/
 	right: 10px;
   top: 70px;
 }
@@ -43,7 +43,7 @@ top: 0;
 }
 
 #editor {
-  padding-left: 30%;
+  /*padding-left: 30%;*/
 }
 
 .selected {
