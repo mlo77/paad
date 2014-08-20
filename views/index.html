@@ -123,6 +123,17 @@ addprod = function () {
     if (document.getElementById(tag).value != undefined)
       ob[tag] = document.getElementById(tag).value;
   }
+  function fetchVariants(vrts) {
+    // var currentVariant = {
+    //   imgs: {},
+    //   color: '',
+    //   size: [] // {label, qty}
+    // };
+    var res = [];
+    for (var i=0; i<vrts.length; i++) {
+      
+    }
+  }
 	var p = {};
   fetch(p,'desc');
   fetch(p,'title');
@@ -130,25 +141,25 @@ addprod = function () {
   p.gdr = getGdr();
   fetch(p,'cat');
   p.icons = makelist(currentProduct.icons);
-  p.variants = cloneVariants(currentProduct.variants);
+  p.variants = fetchVariants(currentProduct.variants);
   console.log(p);
   products.push(p);
   reset();
 }
 
-function cloneVariants(vrts) {
-  console.log(vrts)
-  var res = [];
-  for (var i=0; i<vrts.length; i++) {
-    res.push({
-      color: vrts[i].color,
-      qty: vrts[i].qty,
-      size: vrts[i].size,
-      imgs: makelist(vrts[i].imgs)
-    });
-  }
-  return res;
-}
+// function cloneVariants(vrts) {
+//   console.log(vrts)
+//   var res = [];
+//   for (var i=0; i<vrts.length; i++) {
+//     res.push({
+//       color: vrts[i].color,
+//       qty: vrts[i].qty,
+//       size: vrts[i].size,
+//       imgs: makelist(vrts[i].imgs)
+//     });
+//   }
+//   return res;
+// }
 
 function reset() {
   function clr(tag) {
@@ -302,32 +313,53 @@ function updateIconsSelection(list) {
   $('#gallerylaundry').contents()[0].contentWindow.updateSelection(list, true);
 }
 
-addVariant = function(token) {
-  if (token == undefined) token = 0;
+addVariant = function(vtoken) {
+  if (vtoken == undefined) vtoken = 0;
 
-  currentProduct.variants.push( {imgs:{}, qty:0, size:'', color:'', cont:undefined});
+  var currentVariant = {
+    imgs: {},
+    color: '',
+    size: [] // {label, qty}
+  };
 
+  currentProduct.variants.push(currentVariant);
+    
   var cont = $('<div></div>')
     .appendTo('#variant')
     .css('backgroundColor', colorscale(Math.random()));
   $('<iframe></iframe>')
-    .attr('id', 'gallery'+token)
-    .attr('src', 'resbrowser.html?purpose=img&variant='+token)
+    .attr('id', 'gallery'+vtoken)
+    .attr('src', 'resbrowser.html?purpose=img&variant='+vtoken)
     .appendTo(cont);
-  function createInputField(label, token) {
-    $('<div></div>')
+  
+  function createInputField(label, vtoken, parent) {
+    return $('<div></div>')
       .text(label +': ')
       .append($('<input>')
         .attr('type', 'text')
-        .attr('id', label+token)
-        .append($('<br>'))
+        .attr('id', label+vtoken)
       )
-      .appendTo(cont);
+      .appendTo(parent);
   }
-  createInputField('qty', token);
-  createInputField('size', token);
-  createInputField('color', token);
-  //currentProduct.variants[token].cont = cont;
+  function addSize() {
+    createInputField('size', vtoken+'-'+sizeCounter, sizqty).css({float:'left'});
+    createInputField('qty', vtoken+'-'+sizeCounter, sizqty);
+    sizeCounter++;
+  }
+
+  var sizeCounter = 1;
+  createInputField('color', vtoken, cont);
+  cont.append(
+      $('<input>')
+        .attr('type', 'button')
+        .attr('value', 'size++')
+        .click(addSize)
+    )
+  var sizqty = $('<div></div>')
+    .attr('id', 'sizqty'+vtoken)
+    .appendTo(cont);
+  addSize();
+  currentVariant.sizqtyElmt = sizqty;
   return cont;
 }
 
