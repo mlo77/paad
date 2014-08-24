@@ -126,9 +126,16 @@ randomizer.makeProd = function(cb) {
           var r = rnum(imgs.length)
           p.variants[u].imgs.push(imgs[r]);
         }
-        p.variants[u].qty = rnum(49, 1);
-        p.variants[u].size = rand('adjectives');
         p.variants[u].color = rand('adjectives');
+
+        p.variants[u].size = [];
+        var nsiz = (rnum(100, 1) % 3);
+        for (var k=0; k<nsiz; k++) {
+          p.variants[u].size.push({
+            qty : rnum(49, 1),
+            label : rand('adjectives') // size label
+          });
+        }
       }
       cb(p);
     });
@@ -147,6 +154,13 @@ randomizer.makeProd = function(cb) {
   prod.cat = (j==0) ? 'top' : (j==1)? 'outer' : 'bottom';
   randicons(prod, function(p){randvariant(p, done);});
 };
+
+randomizer.gogo = function(n) {
+  for (var i=0; i<n; i++) {
+    randomizer.makeProd(loadItem);
+    addprod();
+  }
+}
 
 // function setGdr(gdr) {
 //   if (gdr == 'boy') {

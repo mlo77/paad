@@ -110,7 +110,7 @@ function showimg(url, variant) {
   el.appendChild(createimg());
   var el2 = document.createElement('div');
   el2.className='previmgremove';
-  el2.onclick = function() {
+  el2.onclick = function() {v
     $(el).remove();
   }
   el.appendChild(el2);
@@ -123,16 +123,31 @@ addprod = function () {
     if (document.getElementById(tag).value != undefined)
       ob[tag] = document.getElementById(tag).value;
   }
-  function fetchVariants(vrts) {
+  function getV(tag) {
+    return document.getElementById(tag).value;
+  }
+  function fetchVariants() {
     // var currentVariant = {
     //   imgs: {},
     //   color: '',
     //   size: [] // {label, qty}
     // };
     var res = [];
+    var vrts = document.getElementById('variant').children
     for (var i=0; i<vrts.length; i++) {
-      
+      var vrt = {size:[]};
+      vrt.color = getV('color'+i);
+      var sizqtyElmts = document.getElementById('sizqty'+i).children;
+      for (var j=0; j<sizqtyElmts.length; j+=2) {
+        vrt.size.push({
+          label: getV('size'+i+'-'+j),
+          qty: getV('qty'+i+'-'+j)
+        });
+      }
+      vrt.imgs = makelist(currentProduct.variants[i].imgs);
+      res.push(vrt);
     }
+    return res;
   }
 	var p = {};
   fetch(p,'desc');
@@ -141,25 +156,11 @@ addprod = function () {
   p.gdr = getGdr();
   fetch(p,'cat');
   p.icons = makelist(currentProduct.icons);
-  p.variants = fetchVariants(currentProduct.variants);
+  p.variants = fetchVariants();
   console.log(p);
   products.push(p);
   reset();
 }
-
-// function cloneVariants(vrts) {
-//   console.log(vrts)
-//   var res = [];
-//   for (var i=0; i<vrts.length; i++) {
-//     res.push({
-//       color: vrts[i].color,
-//       qty: vrts[i].qty,
-//       size: vrts[i].size,
-//       imgs: makelist(vrts[i].imgs)
-//     });
-//   }
-//   return res;
-// }
 
 function reset() {
   function clr(tag) {
@@ -241,9 +242,12 @@ loadItem = function(d) {
         showimg(dv.imgs[i], currentProduct.variants[variant]);
       }
     }
-    fill('qty'+variant,dv.qty);
-    fill('size'+variant,dv.size);
     fill('color'+variant,dv.color);
+    for (var i=0; i<dv.size.length; i++) {
+      $('#addsizebtn'+variant).click(); // add line
+      fill('qty'+variant+'-'+(i*2),dv.size[i].qty);
+      fill('size'+variant+'-'+(i*2),dv.size[i].label);
+    }
   }
 }
 
@@ -314,16 +318,11 @@ function updateIconsSelection(list) {
 }
 
 addVariant = function(vtoken) {
-  if (vtoken == undefined) vtoken = 0;
+  vtoken = currentProduct.variants.length;
 
-  var currentVariant = {
-    imgs: {},
-    color: '',
-    size: [] // {label, qty}
-  };
-
+  var currentVariant = {imgs: {}};
   currentProduct.variants.push(currentVariant);
-    
+
   var cont = $('<div></div>')
     .appendTo('#variant')
     .css('backgroundColor', colorscale(Math.random()));
@@ -331,7 +330,7 @@ addVariant = function(vtoken) {
     .attr('id', 'gallery'+vtoken)
     .attr('src', 'resbrowser.html?purpose=img&variant='+vtoken)
     .appendTo(cont);
-  
+
   function createInputField(label, vtoken, parent) {
     return $('<div></div>')
       .text(label +': ')
@@ -344,13 +343,14 @@ addVariant = function(vtoken) {
   function addSize() {
     createInputField('size', vtoken+'-'+sizeCounter, sizqty).css({float:'left'});
     createInputField('qty', vtoken+'-'+sizeCounter, sizqty);
-    sizeCounter++;
+    sizeCounter+=2;
   }
 
-  var sizeCounter = 1;
+  var sizeCounter = 0;
   createInputField('color', vtoken, cont);
   cont.append(
       $('<input>')
+        .attr('id', 'addsizebtn'+vtoken)
         .attr('type', 'button')
         .attr('value', 'size++')
         .click(addSize)
@@ -358,8 +358,7 @@ addVariant = function(vtoken) {
   var sizqty = $('<div></div>')
     .attr('id', 'sizqty'+vtoken)
     .appendTo(cont);
-  addSize();
-  currentVariant.sizqtyElmt = sizqty;
+  //addSize();
   return cont;
 }
 
