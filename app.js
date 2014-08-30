@@ -5,6 +5,8 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var session = require('express-session');
+var swagger = require('./swagger.js');
+var apis = require('./apis.js');
 
 // New Code
 var mongo = require('mongodb');
@@ -18,7 +20,7 @@ var app = express();
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
-//app.set('view engine', 'ejs');
+//app.set('view engine', 'html');
 app.engine('html', require('ejs').renderFile);
 
 app.use(favicon());
@@ -31,6 +33,7 @@ app.use(session({
     resave : false,
     saveUninitialized  : false }))
 app.use(express.static(path.join(__dirname, 'public')));
+app.set('express', express)
 
 // Make our db accessible to our router
 app.use(function(req,res,next){
@@ -50,26 +53,29 @@ app.use(function(req, res, next) {
 
 /// error handlers
 
-// development error handler
-// will print stacktrace
-if (app.get('env') === 'development') {
-    app.use(function(err, req, res, next) {
-        res.status(err.status || 500);
-        res.render('error', {
-            message: err.message,
-            error: err
-        });
-    });
-}
+// // development error handler
+// // will print stacktrace
+// if (app.get('env') === 'development') {
+//     app.use(function(err, req, res, next) {
+//         res.status(err.status || 500);
+//         res.render('error', {
+//             message: err.message,
+//             error: err
+//         });
+//     });
+// }
 
-// production error handler
-// no stacktraces leaked to user
-app.use(function(err, req, res, next) {
-    res.status(err.status || 500);
-    res.render('error', {
-        message: err.message,
-        error: {}
-    });
-});
+// // production error handler
+// // no stacktraces leaked to user
+// app.use(function(err, req, res, next) {
+//     res.status(err.status || 500);
+//     res.render('error', {
+//         message: err.message,
+//         error: {}
+//     });
+// });
+
+swagger(app);
+apis(app);
 
 module.exports = app;

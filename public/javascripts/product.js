@@ -118,7 +118,7 @@ randomizer.makeProd = function(cb) {
   }
   function randvariant(p, cb) {
     getList('', function(imgs) {
-      var nv = (rnum(100, 1) % 3);
+      var nv = (rnum(100, 1) % 3) + 1;
       for (var u=0; u<=nv; u++) {
         p.variants.push({imgs:[]})
         var nimg = (rnum(100, 1) % 6);
@@ -129,7 +129,7 @@ randomizer.makeProd = function(cb) {
         p.variants[u].color = rand('adjectives');
 
         p.variants[u].size = [];
-        var nsiz = (rnum(100, 1) % 3);
+        var nsiz = (rnum(100, 1) % 3) + 1;
         for (var k=0; k<nsiz; k++) {
           p.variants[u].size.push({
             qty : rnum(49, 1),
