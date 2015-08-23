@@ -5,16 +5,16 @@ var router = express.Router();
 /* GET home page. */
 router.get('/', function(req, res) {
   //console.log(JSON.stringify(req.session));
-  //if (req.session.user == 'mogimogi') {
+  if (req.session.user == 'mogimogi') {
     res.render('index.html');
-  //} else {
-  //  res.render('login', { title: 'login' });
-  //}
+  } else {
+    res.render('login.html', { title: 'login' });
+  }
 });
 
 router.post('/login', function(req, res) {
   //console.log(JSON.stringify(req.session));
-  if (req.body.username == 'gonjun' && req.body.password == 'mogimokcha__') {
+  if (req.body.username == 'gonjun' && req.body.password == 'mogimokcha') {
     req.session.user = 'mogimogi';
     res.redirect('/');
   }
